@@ -1,5 +1,4 @@
 name: Node.js CI
-environment: Test Environment
 
 on:
   push:
@@ -10,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    environment: Test Environment  
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
