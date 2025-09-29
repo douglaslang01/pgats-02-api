@@ -3,7 +3,7 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 // Aplicação
-const app = require('../../../app');
+const app = require('../../../../app');
 const { getToken } = require('../helpers/authentication')
 
 export const options = {
