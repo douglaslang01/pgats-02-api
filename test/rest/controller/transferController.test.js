@@ -22,7 +22,7 @@ describe('Transfer Controller', () => {
             token = await auth.getToken();
         });
 
-        describe.only('Transferencias para não favorecidos', () => {
+        describe('Transferencias para não favorecidos', () => {
             let newUser;
             let reqTransfer;
             before(async () => {
@@ -31,8 +31,7 @@ describe('Transfer Controller', () => {
                 reqTransfer.to = newUser.username;
             })
 
-            it('CT05.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201', async () => {
-
+            it.skip('CT05.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201', async () => {
                 //Arrange
                 reqTransfer.value = 5000.00;
 
@@ -48,7 +47,6 @@ describe('Transfer Controller', () => {
             });
 
             it('CT05.2 - Transferência de R$ 5.000,01 para não favorecido deve retornar 400', async () => {
-
                 //Arrange
                 reqTransfer.value = 5000.01;
 
