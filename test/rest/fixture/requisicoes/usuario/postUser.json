@@ -1,0 +1,9 @@
+{
+    "username": "joao",
+    "password": "123456",
+    "favorecidos": [
+        "julio",
+        "priscila"
+    ],
+    "saldo": 10000
+}
