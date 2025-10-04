@@ -3,8 +3,8 @@ const request = require('supertest');
 const bcrypt = require('bcryptjs');
 
 //Aplicação
-const app = require('../../../app');
-const postUser = require('../fixture/requisicoes/usuario/postUser.json');
+const app = require('../../app');
+const postUser = require('../rest/fixture/requisicoes/usuario/postUser.json');
 
 const createUser = async (username, password) => {
     const bodyUser = { ...postUser };
