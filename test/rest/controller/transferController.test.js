@@ -31,23 +31,19 @@ describe('Transfer Controller', () => {
                 reqTransfer.to = newUser.username;
             })
 
-            it.skip('CT05.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201', async () => {
-                //Arrange
+            it.skip('CT5.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201', async () => {
                 reqTransfer.value = 5000.00;
 
-                //Action
                 const res = await request(app)
                     .post('/transfers')
                     .set('Authorization', `Bearer ${token}`)
                     .send(reqTransfer);
 
-                //Assert
                 expect(res.status).to.equal(201);
                 expect(res.body).to.have.not.property('error');
             });
 
-            it('CT05.2 - Transferência de R$ 5.000,01 para não favorecido deve retornar 400', async () => {
-                //Arrange
+            it('CT5.2 - Transferência de R$ 5.000,01 para não favorecido deve retornar 400', async () => {
                 reqTransfer.value = 5000.01;
 
                 const res = await request(app)
