@@ -5,14 +5,15 @@ const { expect } = require('chai');
 
 // Aplicação
 const app = require('../../../app');
-const auth = require('../helpers/authentication')
-const { createUser } = require('../helpers/user');
+const auth = require('../helpers/authentication');
+const { createUser } = require('../../utils/user');
+const transferUtils = require('../../utils/transfer');
 
 // Mock
 const transferService = require('../../../service/transferService');
 
 //Fixtures
-const postTransfer = require('../fixture/requisicoes/transferencias/postTransfer.json');
+const postTransferObject = require('../fixture/requisicoes/transferencias/postTransfer.json');
 
 // Testes
 describe('Transfer Controller', () => {
@@ -24,32 +25,27 @@ describe('Transfer Controller', () => {
 
         describe('Transferencias para não favorecidos', () => {
             let newUser;
-            let reqTransfer;
+            let bodyTransfer;
             before(async () => {
                 newUser = await createUser('maria');
-                reqTransfer = { ...postTransfer };
-                reqTransfer.to = newUser.username;
-            })
+                bodyTransfer = { ...postTransferObject };
+            });
 
             it.skip('CT5.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201', async () => {
-                reqTransfer.value = 5000.00;
+                bodyTransfer.to = newUser.username;
+                bodyTransfer.value = 5000.00;
 
-                const res = await request(app)
-                    .post('/transfers')
-                    .set('Authorization', `Bearer ${token}`)
-                    .send(reqTransfer);
+                res = await transferUtils.postTransfer(token, bodyTransfer);
 
                 expect(res.status).to.equal(201);
                 expect(res.body).to.have.not.property('error');
             });
 
             it('CT5.2 - Transferência de R$ 5.000,01 para não favorecido deve retornar 400', async () => {
-                reqTransfer.value = 5000.01;
+                bodyTransfer.to = newUser.username;
+                bodyTransfer.value = 5000.01;
 
-                const res = await request(app)
-                    .post('/transfers')
-                    .set('Authorization', `Bearer ${token}`)
-                    .send(reqTransfer);
+                res = await transferUtils.postTransfer(token, bodyTransfer);
 
                 expect(res.status).to.equal(400);
                 expect(res.body).to.have.property('error', 'Transferência acima de R$ 5.000,00 só para favorecidos');
@@ -128,6 +124,15 @@ describe('Transfer Controller', () => {
     });
 
     describe('GET /transfers', () => {
-        // Its ficam aqui
+        it('Primeiro teste de exemplo', async () => {
+            const transfersArranged = await transferUtils.populateTransfers(token); //Arrange
+
+            const response = await transferUtils.getTransfers(token); //Action
+
+            //Assert
+            expect(response.status).to.equal(200);
+            expect(response.body).to.have.lengthOf(transfersArranged.length);
+
+        });
     });
 });
