@@ -6,7 +6,6 @@ const { faker } = require('@faker-js/faker');
 const { login, getUsers, registerUser } = require('../../utils/user')
 const app = require('../../../app');
 const postLogin = require('../fixture/requisicoes/login/postLogin.json')
-const auth = require('../helpers/authentication')
 const postUser = require('../fixture/requisicoes/usuario/postUser.json')
 
 
@@ -25,10 +24,7 @@ describe('User Controller', () => {
             const newUser = { ...postUser };
             newUser.favorecidos = [];
 
-            const response = await request(app)
-                .post('/users/register')
-                .set('Content-Type', 'application/json')
-                .send(newUser);
+            const response = await registerUser(newUser);
 
             expect(response.status).to.equal(201);
             expect(response.body.saldo).to.equal(10000);
@@ -37,37 +33,29 @@ describe('User Controller', () => {
         it('CT-2.3 - Registro com username vazio', async () => {
             const newUser = { ...postUser };
             newUser.username = ''
-            const response = await request(app)
-                .post('/users/register')
-                .send(newUser);
-
+            const response = await registerUser(newUser);
+             
             expect(response.status).to.equal(400);
         });
 
         it('CT-2.4 - Registro com password vazio', async () => {
             const newUser = { ...postUser };
             newUser.password = ''
-            const response = await request(app)
-                .post('/users/register')
-                .send(newUser);
-
+            const response = await registerUser(newUser);
+            
             expect(response.status).to.equal(400);
         });
 
         it('CT-2.5 - Registro de usuário duplicado', async () => {
             const newUser = { ...postUser };
-            const response = await request(app)
-                .post('/users/register')
-                .send(newUser);
+            const response = await registerUser(newUser);
 
             expect(response.status).to.equal(400);
         });
         
         it.skip('CT-2.6 - Registro com favorecidos inválidos', async () => {
             const newUser = { ...postUser };
-            const response = await request(app)
-                .post('/users/register')
-                .send(newUser);
+            const response = await registerUser(newUser);
 
             expect(response.status).to.equal(400);
         });
@@ -76,19 +64,15 @@ describe('User Controller', () => {
             const newUser = { ...postUser };
             newUser.username = '',
             newUser.password = ''
-            const response = await request(app)
-                .post('/users/register')
-                .send(newUser);
+            const response = await registerUser(newUser);
 
             expect(response.status).to.equal(400);
         });
 
         it.skip('CT-2.8 - Registro usando método não permitido', async () => {
             const newUser = { ...postUser };
-            const response = await request(app)
-                .get('/users/register')
-                .send(newUser);
-            console.log(response.status)
+            const response = await registerUser(newUser);
+
             expect(response.status).to.equal(404);
         });
 
