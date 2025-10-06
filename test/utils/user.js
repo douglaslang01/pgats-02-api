@@ -6,17 +6,10 @@ const bcrypt = require('bcryptjs');
 const app = require('../../app');
 const postUser = require('../rest/fixture/requisicoes/usuario/postUser.json');
 
-const createUser = async (username, password) => {
-    const bodyUser = { ...postUser };
-    bodyUser.username = username || postUser.username;
-    bodyUser.password = bcrypt.hashSync(password || postUser.password, 8);
-
-    const response = await request(app)
+const registerUser = async (bodyUser) =>
+    await request(app)
         .post('/users/register')
         .set('Content-type', 'application/json')
         .send(bodyUser);
 
-    return response.body;
-}
-
-module.exports = { createUser }
+module.exports = { registerUser }
