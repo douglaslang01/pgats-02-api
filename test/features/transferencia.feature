@@ -5,7 +5,7 @@ Feature: Transferências bancárias via API
 
     Rule: Transferências acima de R$ 5.000,00 só podem ser feitas para favorecidos.
     Rule: O saldo inicial de cada usuário é de R$ 10.000,00.
-
+        @focus
         Scenario: CT5.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201
             Given que o usuário "julio" está autenticado
             And possui saldo 5000.00 ou mais
@@ -58,7 +58,14 @@ Feature: Transferências bancárias via API
             Then a API deve retornar status 400
             And a mensagem deve ser "Saldo insuficiente para realizar a transferência."
 
-        Scenario: CT5.7 - Transferência com valor inválido deve retornar 400
+        Scenario: CT5.7 - Transferência com valor negativo deve retornar 400
+            Given que o usuário "julio" está autenticado
+            And possui saldo de 10000
+            And "isabele" esteja cadastrada no sistema
+            When ele realiza uma transferência de -0.01 para "isabelle"
+            Then a API deve retornar status 400
+
+        Scenario: CT5.8 - Transferência com valor inválido deve retornar 400
             Given que o usuário "julio" está autenticado
             And possui saldo de 5000 ou mais
             And "isabele" esteja cadastrada no sistema
@@ -66,14 +73,14 @@ Feature: Transferências bancárias via API
             Then a API deve retornar status 400
             And a mensagem deve ser "Valor da transferência inválido."
 
-        Scenario: CT5.8 - Transferências simultâneas (concorrência) devem ser processadas sem inconsistências
+        Scenario: CT5.9 - Transferências simultâneas (concorrência) devem ser processadas sem inconsistências
             Given que o usuário "julio" está autenticado
             And possui saldo de 10000
             And "isabele" esteja cadastrada no sistema
             When ele realiza 100 múltiplas transferências de 100 para "isabelle" simultaneamente
             Then todas as transferências devem ser processadas corretamente, sem inconsistências
 
-        Scenario: CT5.9 - Tempo de resposta da transferência deve ser menor que 2 segundos
+        Scenario: CT5.10 - Tempo de resposta da transferência deve ser menor que 2 segundos
             Given que o usuário "julio" está autenticado
             And possui saldo de 10000
             And "isabele" esteja cadastrada no sistema
