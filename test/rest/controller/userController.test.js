@@ -14,8 +14,9 @@ describe('User Controller', () => {
         it('CT-2.1 - Registro de usuário válido', async () => {
             const userBody = { ...postUser };
             userBody.username = faker.internet.username();
+
             const user = await registerUser(userBody);
-    
+
             expect(user.body).to.have.property('username', userBody.username);
             expect(user.body).to.have.property('saldo', userBody.saldo);
         });
@@ -33,45 +34,58 @@ describe('User Controller', () => {
         it('CT-2.3 - Registro com username vazio', async () => {
             const newUser = { ...postUser };
             newUser.username = ''
+
             const response = await registerUser(newUser);
-             
+
             expect(response.status).to.equal(400);
         });
 
         it('CT-2.4 - Registro com password vazio', async () => {
             const newUser = { ...postUser };
             newUser.password = ''
+
             const response = await registerUser(newUser);
-            
+
             expect(response.status).to.equal(400);
         });
 
         it('CT-2.5 - Registro de usuário duplicado', async () => {
             const newUser = { ...postUser };
+
             const response = await registerUser(newUser);
 
             expect(response.status).to.equal(400);
         });
-        
+
         it.skip('CT-2.6 - Registro com favorecidos inválidos', async () => {
             const newUser = { ...postUser };
+            userBody.username = faker.internet.username();
+            newUser.favorecidos = ['teste123456'];
+
             const response = await registerUser(newUser);
+
+            console.log(response);
 
             expect(response.status).to.equal(400);
         });
 
         it('CT-2.7 - Registro sem username e password', async () => {
             const newUser = { ...postUser };
-            newUser.username = '',
-            newUser.password = ''
+            newUser.username = '';
+            newUser.password = '';
+
             const response = await registerUser(newUser);
 
             expect(response.status).to.equal(400);
         });
 
-        it.skip('CT-2.8 - Registro usando método não permitido', async () => {
+        it('CT-2.8 - Registro usando verbo não permitido', async () => {
             const newUser = { ...postUser };
-            const response = await registerUser(newUser);
+
+            const response = await request(app)
+                .get('/users/register')
+                .set('Content-type', 'application/json')
+                .send(newUser);
 
             expect(response.status).to.equal(404);
         });
