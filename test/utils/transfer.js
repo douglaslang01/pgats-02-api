@@ -19,7 +19,7 @@ const getTransfers = async (token) =>
 
 
 const populateTransfers = async (token) => {
-    const listTransfers = []; //Buscar as trasnferencias das fixtures
+    const listTransfers = [];
     let transfersResult = [];
 
     listTransfers.forEach(async transfer => {

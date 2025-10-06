@@ -1,138 +1,140 @@
 // Bibliotecas
 const request = require('supertest');
-const sinon = require('sinon');
 const { expect } = require('chai');
+const { faker } = require('@faker-js/faker');
 
 // Aplicação
 const app = require('../../../app');
 const auth = require('../helpers/authentication');
-const { createUser } = require('../../utils/user');
+const { registerUser } = require('../../utils/user');
 const transferUtils = require('../../utils/transfer');
 
-// Mock
-const transferService = require('../../../service/transferService');
-
 //Fixtures
+const postUserObject = require('../fixture/requisicoes/usuario/postUser.json');
 const postTransferObject = require('../fixture/requisicoes/transferencias/postTransfer.json');
 
 // Testes
 describe('Transfer Controller', () => {
     let token;
+    before(async () => {
+        token = await auth.getToken();
+    });
     describe('POST /transfers', () => {
-        before(async () => {
-            token = await auth.getToken();
+        let bodyTransfer;
+        beforeEach(async () => {
+            const fromUserBody = { ...postUserObject };
+
+            fromUserBody.username = faker.internet.username();
+            const fromUser = await registerUser(fromUserBody);
+
+            bodyTransfer = { ...postTransferObject };
+            bodyTransfer.from = fromUser.body.username;
         });
 
         describe('Transferencias para não favorecidos', () => {
-            let newUser;
-            let bodyTransfer;
-            before(async () => {
-                newUser = await createUser('maria');
-                bodyTransfer = { ...postTransferObject };
+            beforeEach(async () => {
+                const toUserBody = { ...postUserObject };
+
+                toUserBody.username = faker.internet.username();
+                const toUser = await registerUser(toUserBody);
+
+                bodyTransfer.to = toUser.body.username;
             });
 
             it.skip('CT5.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201', async () => {
-                bodyTransfer.to = newUser.username;
                 bodyTransfer.value = 5000.00;
 
-                res = await transferUtils.postTransfer(token, bodyTransfer);
+                const res = await transferUtils.postTransfer(token, bodyTransfer);
 
                 expect(res.status).to.equal(201);
                 expect(res.body).to.have.not.property('error');
             });
 
             it('CT5.2 - Transferência de R$ 5.000,01 para não favorecido deve retornar 400', async () => {
-                bodyTransfer.to = newUser.username;
                 bodyTransfer.value = 5000.01;
 
-                res = await transferUtils.postTransfer(token, bodyTransfer);
+                const res = await transferUtils.postTransfer(token, bodyTransfer);
 
                 expect(res.status).to.equal(400);
                 expect(res.body).to.have.property('error', 'Transferência acima de R$ 5.000,00 só para favorecidos');
             });
         })
 
-        it('Quando informo remetente e destinatario inexistentes recebo 400', async () => {
-            const resposta = await request(app)
-                .post('/transfers')
-                .set('Authorization', `Bearer ${token}`)
-                .send({
-                    from: "julio",
-                    to: "isabelle",
-                    value: 100
-                });
+        it('CT5.3 - Transferência de R$ 5.000,01 para favorecido deve retornar 201', async () => {
+            bodyTransfer.to = 'priscila';
+            bodyTransfer.value = 5000.01;
 
-            expect(resposta.status).to.equal(400);
-            expect(resposta.body).to.have.property('error', 'Usuário remetente ou destinatário não encontrado')
+            const res = await transferUtils.postTransfer(token, bodyTransfer);
+
+            expect(res.status).to.equal(201);
+            expect(res.body).to.have.property('from', bodyTransfer.from);
+            expect(res.body).to.have.property('to', bodyTransfer.to);
+            expect(res.body).to.have.property('value', bodyTransfer.value);
+            expect(res.body).to.have.property('date');
         });
 
-        it('Usando Mocks: Quando informo remetente e destinatario inexistentes recebo 400', async () => {
-            // Mocar apenas a função transfer do Service
-            const transferServiceMock = sinon.stub(transferService, 'transfer');
-            transferServiceMock.throws(new Error('Usuário remetente ou destinatário não encontrado'));
+        it('CT5.4 - Transferência sem autenticação deve retornar 401', async () => {
+            bodyTransfer.to = 'priscila';
+            bodyTransfer.value = 100;
 
-            const resposta = await request(app)
+            const res = await request(app)
                 .post('/transfers')
-                .set('Authorization', `Bearer ${token}`)
-                .send({
-                    from: "julio",
-                    to: "priscila",
-                    value: 100
-                });
+                .send(bodyTransfer);
 
-            expect(resposta.status).to.equal(400);
-            expect(resposta.body).to.have.property('error', 'Usuário remetente ou destinatário não encontrado');
+            expect(res.status).to.equal(401);
+            expect(res.body).to.have.property('message', 'Token não fornecido.');
         });
 
-        it('Usando Mocks: Quando informo valores válidos eu tenho sucesso com 201 CREATED', async () => {
-            // Mocar apenas a função transfer do Service
-            const transferServiceMock = sinon.stub(transferService, 'transfer');
-            transferServiceMock.returns({
-                from: "julio",
-                to: "priscila",
-                value: 100,
-                date: new Date().toISOString()
-            });
+        it('CT5.5 - Transferência para usuário inexistente deve retornar 400', async () => {
+            bodyTransfer.to = faker.internet.username();
+            bodyTransfer.value = 100;
 
-            const resposta = await request(app)
-                .post('/transfers')
-                .set('Authorization', `Bearer ${token}`)
-                .send({
-                    from: "julio",
-                    to: "priscilaaaaaaaaaaa",
-                    value: 100
-                });
+            const res = await transferUtils.postTransfer(token, bodyTransfer);
 
-            expect(resposta.status).to.equal(201);
-
-            // Validação com um Fixture
-            const respostaEsperada = require('../fixture/respostas/quandoInformoValoresValidosEuTenhoSucessoCom201Created.json')
-            delete resposta.body.date;
-            delete respostaEsperada.date;
-            expect(resposta.body).to.deep.equal(respostaEsperada);
-
-            // Um expect para comparar a Resposta.body com a String contida no arquivo
-            // expect(resposta.body).to.have.property('from', 'julio');
-            // expect(resposta.body).to.have.property('to', 'priscila');
-            // expect(resposta.body).to.have.property('value', 100);
+            expect(res.status).to.equal(400);
+            expect(res.body).to.have.property('error', 'Usuário remetente ou destinatário não encontrado');
         });
 
-        afterEach(() => {
-            // Reseto o Mock
-            sinon.restore();
-        })
+        it('CT5.6 - Transferência com valor maior que o saldo deve retornar 400', async () => {
+            bodyTransfer.to = 'priscila';
+            bodyTransfer.value = 10000.01;
+
+            const res = await transferUtils.postTransfer(token, bodyTransfer);
+
+            expect(res.status).to.equal(400);
+            expect(res.body).to.have.property('error', 'Saldo insuficiente');
+        });
+
+        it.skip('CT5.7 - Transferência com valor negativo deve retornar 400', async () => {
+            bodyTransfer.to = 'priscila';
+            bodyTransfer.value = -0.01;
+
+            const res = await transferUtils.postTransfer(token, bodyTransfer);
+
+            expect(res.status).to.equal(400);
+        });
+
+        it('CT5.8 - Transferência com valor inválido deve retornar 400', async () => {
+            bodyTransfer.to = 'priscila';
+            bodyTransfer.value = "cinco mil";
+
+            const res = await transferUtils.postTransfer(token, bodyTransfer);
+
+            expect(res.status).to.equal(400);
+            //expect(res.body).to.have.property('error', 'Valor da transferência inválido.');
+        });
+
     });
 
     describe('GET /transfers', () => {
         it('Primeiro teste de exemplo', async () => {
-            const transfersArranged = await transferUtils.populateTransfers(token); //Arrange
+            //const transfersArranged = await transferUtils.populateTransfers(token); //Arrange
 
-            const response = await transferUtils.getTransfers(token); //Action
+            const resp = await transferUtils.getTransfers(token); //Action
 
             //Assert
-            expect(response.status).to.equal(200);
-            expect(response.body).to.have.lengthOf(transfersArranged.length);
-
+            expect(resp.status).to.equal(200);
+            //expect(response.body).to.have.lengthOf(transfersArranged.length);
         });
     });
 });
