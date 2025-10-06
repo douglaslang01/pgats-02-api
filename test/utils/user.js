@@ -12,4 +12,10 @@ const registerUser = async (bodyUser) =>
         .set('Content-type', 'application/json')
         .send(bodyUser);
 
-module.exports = { registerUser }
+const login = async (bodyLogin) =>
+    await request(app)
+        .post('/users/login')
+        .set('Content-type', 'application/json')
+        .send(bodyLogin);
+
+module.exports = { registerUser, login }
