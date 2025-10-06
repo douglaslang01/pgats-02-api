@@ -18,4 +18,9 @@ const login = async (bodyLogin) =>
         .set('Content-type', 'application/json')
         .send(bodyLogin);
 
-module.exports = { registerUser, login }
+const getUsers = async () =>
+    await request(app)
+        .get('/users')
+        .send(bodyUser);
+
+module.exports = { registerUser, login, getUsers }
