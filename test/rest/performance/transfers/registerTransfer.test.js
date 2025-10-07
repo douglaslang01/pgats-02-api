@@ -3,19 +3,18 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 // Aplicação
-const app = require('../../../../app');
-const { getToken } = require('../helpers/authentication')
+import { getToken } from '../../helpers/performanceAuthentication.js';
+import { getBaseUrl } from '../../../utils/performance.js';
+const postTransfer = JSON.parse(open('../../fixture/requisicoes/transferencias/postTransfer.json'));
 
 export const options = {
     iterations: 1
 };
 
 export default function () {
-
     const token = getToken();
-    const url = app + '/transfers';
-    const payload = JSON.stringify({
-    });
+    const url = getBaseUrl() + '/transfers';
+    const payload = JSON.stringify(postTransfer);
 
     const params = {
         headers: {
