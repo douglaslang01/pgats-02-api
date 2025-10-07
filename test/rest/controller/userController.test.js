@@ -104,7 +104,7 @@ describe('User Controller', () => {
 
         it('Deve retornar 400 quando usuário inválido ', async () => {
             const bodyLogin = { ...postLogin };
-            bodyLogin.username = "teste";
+            bodyLogin.username = 'teste';
 
             const response = await login(bodyLogin);
 
@@ -122,7 +122,7 @@ describe('User Controller', () => {
 
         it('Deve retornar 400 quando envio username vazio', async () => {
             const bodyLogin = { ...postLogin };
-            bodyLogin.username = "";
+            bodyLogin.username = '';
 
             const response = await login(bodyLogin);
 
@@ -140,7 +140,7 @@ describe('User Controller', () => {
 
         it('Deve retornar 400 quando senha inválida ', async () => {
             const bodyLogin = { ...postLogin };
-            bodyLogin.password = "1234567";
+            bodyLogin.password = '1234567';
 
             const response = await login(bodyLogin);
 
@@ -160,7 +160,7 @@ describe('User Controller', () => {
 
         it('Deve retornar 400 quando enviar o password vazio ', async () => {
             const bodyLogin = { ...postLogin };
-            bodyLogin.password = "";
+            bodyLogin.password = '';
 
             const response = await login(bodyLogin);
 
