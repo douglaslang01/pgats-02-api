@@ -5,7 +5,7 @@ Feature: Transferências bancárias via API
 
     Rule: Transferências acima de R$ 5.000,00 só podem ser feitas para favorecidos.
     Rule: O saldo inicial de cada usuário é de R$ 10.000,00.
-        @focus
+
         Scenario: CT5.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201
             Given que o usuário "julio" está autenticado
             And possui saldo 5000.00 ou mais
