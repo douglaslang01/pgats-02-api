@@ -1,10 +1,9 @@
 // Bibliotecas
-import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 // Aplicação
 import { getToken } from '../../helpers/performanceAuthentication.js';
-import { getBaseUrl, registerUser } from '../../../utils/performance.js';
+import { registerUser, registerTransfer } from '../../../utils/performance.js';
 const postTransfer = JSON.parse(open('../../fixture/requisicoes/transferencias/postTransfer.json'));
 
 export const options = {
@@ -29,21 +28,11 @@ export function setup() {
 
 export default function (data) {
     const token = data.token;
-    const url = getBaseUrl() + '/transfers';
 
     postTransfer.from = data.fromUser;
     postTransfer.value = 1;
 
-    const payload = JSON.stringify(postTransfer);
-
-    const params = {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-    };
-
-    let res = http.post(url, payload, params);
+    const res = registerTransfer(token, postTransfer);
 
     check(res, {
         'Validar que o Status é 201': (r) => r.status === 201,

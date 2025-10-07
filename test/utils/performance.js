@@ -26,5 +26,18 @@ function registerUser() {
     return response.json('username');
 }
 
+function registerTransfer(token, bodyTransfer) {
+    const url = getBaseUrl() + '/transfers';
+    const payload = JSON.stringify(bodyTransfer);
+    const params = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+    };
 
-export { getBaseUrl, registerUser }
+    return http.post(url, payload, params);
+}
+
+
+export { getBaseUrl, registerUser, registerTransfer }
