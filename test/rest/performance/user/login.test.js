@@ -5,7 +5,7 @@ import { sleep, check } from 'k6';
 export const options = {
     iterations: 1,
     thresholds: {
-        http_req_duration: ['p(95)<22', 'max<25'], // 95% das requisições devem ser respondidas em menos de 25ms
+        http_req_duration: ['p(95)<22', 'max<25'], // 95% das requisições devem ser respondidas em menos de 22ms
         http_req_failed: ['rate<0.01'] // taxa de erro deve ser menor que 1%
     }
 };
