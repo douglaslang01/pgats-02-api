@@ -57,14 +57,12 @@ describe('User Controller', () => {
             expect(response.status).to.equal(400);
         });
 
-        it.skip('CT-2.6 - Registro com favorecidos inválidos', async () => {
+        it('CT-2.6 - Registro com favorecidos inválidos', async () => {
             const newUser = { ...postUser };
             userBody.username = faker.internet.username();
             newUser.favorecidos = ['teste123456'];
 
             const response = await registerUser(newUser);
-
-            console.log(response);
 
             expect(response.status).to.equal(400);
         });

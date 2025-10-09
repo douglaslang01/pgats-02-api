@@ -41,7 +41,7 @@ describe('Transfer Controller', () => {
                 bodyTransfer.to = toUser.body.username;
             });
 
-            it.skip('CT5.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201', async () => {
+            it('CT5.1 - Transferência de R$ 5.000,00 para não favorecido deve retornar 201', async () => {
                 bodyTransfer.value = 5000.00;
 
                 const res = await transferUtils.postTransfer(token, bodyTransfer);
@@ -105,7 +105,7 @@ describe('Transfer Controller', () => {
             expect(res.body).to.have.property('error', 'Saldo insuficiente');
         });
 
-        it.skip('CT5.7 - Transferência com valor negativo deve retornar 400', async () => {
+        it('CT5.7 - Transferência com valor negativo deve retornar 400', async () => {
             bodyTransfer.to = 'priscila';
             bodyTransfer.value = -0.01;
 

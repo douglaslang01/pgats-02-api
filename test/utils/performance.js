@@ -26,6 +26,8 @@ function registerUser() {
     return response.json('username');
 }
 
+
+
 function registerTransfer(token, bodyTransfer) {
     const url = getBaseUrl() + '/transfers';
     const payload = JSON.stringify(bodyTransfer);
