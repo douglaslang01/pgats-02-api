@@ -127,14 +127,55 @@ describe('Transfer Controller', () => {
     });
 
     describe('GET /transfers', () => {
-        it('Primeiro teste de exemplo', async () => {
-            //const transfersArranged = await transferUtils.populateTransfers(token); //Arrange
+        it('CT6.1 - Sucesso ao listar transferências', async () => {
+            const response = await transferUtils.getTransfers(token);
+            expect(response.status).to.equal(200);
+            expect(response.body).to.be.an('array');
+            // Validação básica do formato dos dados
+            if (response.body.length > 0) {
+                expect(response.body[0]).to.have.all.keys('from', 'to', 'value', 'date');
+            }
+        });
 
-            const resp = await transferUtils.getTransfers(token); //Action
+        it('CT6.2 - Falha ao listar transferências sem autenticação', async () => {
+            const response = await request(app)
+                .get('/transfers');
+            expect(response.status).to.equal(401);
+            expect(response.body).to.have.property('message').that.includes('Token');
+        });
 
-            //Assert
-            expect(resp.status).to.equal(200);
-            //expect(response.body).to.have.lengthOf(transfersArranged.length);
+        it('CT6.3 - Falha ao listar transferências com token inválido', async () => {
+            const response = await request(app)
+                .get('/transfers')
+                .set('Authorization', 'Bearer token_invalido');
+            expect(response.status).to.equal(403);
+            expect(response.body).to.have.property('message');
+        });
+
+        it('CT6.4 - Validação do formato dos dados retornados', async () => {
+            const response = await transferUtils.getTransfers(token);
+            expect(response.status).to.equal(200);
+            expect(response.body).to.be.an('array');
+            if (response.body.length > 0) {
+                response.body.forEach(transfer => {
+                    expect(transfer).to.have.all.keys('from', 'to', 'value', 'date');
+                });
+            }
+        });
+
+        it('CT6.5 - Endpoint inexistente', async () => {
+            const response = await request(app)
+                .get('/transferencias')
+                .set('Authorization', `Bearer ${token}`);
+            expect(response.status).to.equal(404);
+        });
+
+        it('CT6.6 - Método não permitido', async () => {
+            const response = await request(app)
+                .post('/transfers')
+                .set('Authorization', `Bearer ${token}`)
+                .send({});
+            expect([400, 405]).to.include(response.status);
         });
     });
 });
