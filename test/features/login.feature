@@ -64,3 +64,4 @@ Feature: Login de usuários
   Scenario: Teste de carga - múltiplas requisições inválidas simultâneas
     When eu executo 200 requests paralelos POST para "/users/login" com corpos inválidos
     Then todas as respostas devem retornar status 400 rapidamente
+
