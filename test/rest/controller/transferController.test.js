@@ -148,7 +148,7 @@ describe('Transfer Controller', () => {
             const response = await request(app)
                 .get('/transfers')
                 .set('Authorization', 'Bearer token_invalido');
-            expect(response.status).to.equal(401);
+            expect(response.status).to.equal(403);
             expect(response.body).to.have.property('message');
         });
 
