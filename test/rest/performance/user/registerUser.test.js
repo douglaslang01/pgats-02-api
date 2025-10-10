@@ -4,7 +4,7 @@ import { registerUser } from '../../../utils/performance.js';
 export const options = {
     stages: [
         { duration: '15s', target: 100 },
-        { duration: '25s', target: 30 },
+        { duration: '25s', target: 100 },
         { duration: '10s', target: 0 }
     ],
     thresholds: {

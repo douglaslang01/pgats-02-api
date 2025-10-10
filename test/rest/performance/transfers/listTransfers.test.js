@@ -1,21 +1,34 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
+import { getToken } from '../../helpers/performanceAuthentication.js';
+import { getBaseUrl } from '../../../utils/performance.js';
+
 export let options = {
-    vus: 50, 
-    duration: '10s', 
+    vus: 50,
+    duration: '10s',
     thresholds: {
-        http_req_duration: ['p(95)<2000'], 
+        http_req_duration: ['p(95)<2000'],
     },
 };
 
-const BASE_URL = 'http://localhost:3000';
-const TOKEN = 'SEU_TOKEN_JWT_AQUI'; 
+export function setup() {
+    const token = getToken();
 
-export default function () {
-    const res = http.get(`${BASE_URL}/transfers`, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
-    });
+    return { token: token }
+}
+
+export default function (data) {
+
+    const url = getBaseUrl() + '/transfers';
+
+    const params = {
+        headers: {
+            'Authorization': `Bearer ${data.token}`
+        },
+    };
+
+    const res = http.get(url, params);
 
     check(res, {
         'status is 200': (r) => r.status === 200,
