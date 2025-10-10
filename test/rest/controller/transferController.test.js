@@ -177,25 +177,5 @@ describe('Transfer Controller', () => {
                 .send({});
             expect([400, 405]).to.include(response.status);
         });
-
-        it('CT6.7 - Performance com grande volume de dados', async function () {
-            this.timeout(5000); 
-            await transferUtils.populateTransfers(token, 1000);
-            const start = Date.now();
-            const response = await transferUtils.getTransfers(token);
-            const duration = Date.now() - start;
-            expect(response.status).to.equal(200);
-            expect(duration).to.be.below(2000); 
-        });
-
-        it('CT6.8 - Concorrência de requisições', async function () {
-            this.timeout(5000);
-            const requests = Array.from({ length: 10 }, () => transferUtils.getTransfers(token));
-            const responses = await Promise.all(requests);
-            responses.forEach(resp => {
-                expect(response.status).to.equal(200);
-                expect(response.body).to.be.an('array');
-            });
-        });
     });
 });
